@@ -1,0 +1,5 @@
+# PUBLIC — the synthetic twin. The generator writes fake FNB exports, a start
+# workbook, the known-good workbook and the replay config (with its oracles
+# computed from the truth ledger), then the backtest runs that config.
+generator: synth/generate.py
+generated_config: synth/out/replays.yaml

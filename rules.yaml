@@ -1,0 +1,146 @@
+# rules.yaml — categorisation rules (PUBLIC EXAMPLE SET)
+#
+# The author's real rules file is private. This one covers common South African
+# merchants plus the synthetic data in backtest/synth, so the pipeline and the
+# backtest run end to end on a fresh clone.
+#
+# VOCABULARY is fixed in categorise.VOCABULARY — byte-exact labels, em dashes are
+# U+2014. A rule naming any other label fails to load.
+#
+# EVALUATION ORDER IS LOAD-BEARING:
+#     overrides (amount-conditional)  →  rules (first match wins)  →  fallback
+
+meta:
+  source: "public example set"
+
+overrides:
+  - id: forecourt_shop
+    pattern: 'ENGEN'
+    when_abs_amount_lt: 200
+    category: "Groceries"
+    note: "A small forecourt purchase is the shop, not the pump."
+
+rules:
+  # ── credits ────────────────────────────────────────────────────────────────
+  - id: annuity
+    pattern: 'ANNUITY PAYOUT'
+    category: "Income — annuity"
+    when_amount_gt: 0
+    note: "The only recurring income. Credits only."
+
+  - id: capital_inflow
+    pattern: 'LUMP SUM|CAPITAL INFLOW'
+    category: "Capital — one-off inflow"
+    when_amount_gt: 0
+    note: "One-off capital. Not income, not a refund, never netted against spend."
+
+  - id: card_settlement
+    pattern: '^CREDIT CARD PAYMENT$'
+    category: "Transfer — card settlement"
+    when_amount_lt: 0
+    note: "Cheque → own credit card. Out of the deficit, in cash burn."
+
+  - id: card_payment_received
+    pattern: 'PAYMENT - THANK YOU|SA CREDIT (CARD )?PAYMENT'
+    category: "Transfer — card settlement"
+    when_amount_gt: 0   # CREDITS ONLY — the card account receiving the settlement
+    note: >-
+      The other leg of the cheque-side CREDIT CARD PAYMENT (D12). Both legs are
+      transfers between own accounts; the card's purchases are the spend.
+
+  - id: unpaid_reversal
+    pattern: '^MAGTAPE UNPAID$'
+    category: "Reversal — unpaid debit"
+    when_amount_gt: 0
+    note: "A bounced debit order coming back; paired with the debit it reverses."
+
+  - id: reimbursement
+    pattern: 'REIMBURSE'
+    category: "Income — other"
+    when_amount_gt: 0
+    note: "Money paid back for costs the owner carried (a trip, say): not income, not a refund of a purchase."
+
+  - id: refunds
+    pattern: 'REFUND CHQ CARD|PURCHASE CR VC'
+    category: "Refunds"
+    when_amount_gt: 0
+
+  - id: self_transfer
+    pattern: 'TRANSFER (TO|FROM) SAVINGS|CREDIT SAVINGS|^SAVINGS$'
+    category: "Savings transfers"
+
+  - id: crypto
+    pattern: 'LUNO|VALR'
+    category: "Crypto / investments"
+    note: "Both directions. Buys are not spend, sells are not income."
+
+  # ── fixed debit orders ─────────────────────────────────────────────────────
+  - id: fibre
+    pattern: 'FIBRECO'
+    category: "Connectivity"
+
+  - id: medical_aid
+    pattern: 'MEDSCHEME|DISCOVERY'
+    category: "Medical aid & health"
+
+  - id: gym
+    pattern: 'VIRGIN ACT|PLANET FITNESS'
+    category: "Fitness (gym)"
+
+  - id: bank_your_change
+    pattern: 'BYC DEBIT|BANK YOUR CHANGE'
+    category: "Savings (Bank Your Change)"
+
+  # ── bank ───────────────────────────────────────────────────────────────────
+  - id: bank_fees
+    pattern: '^\(NO DESCRIPTION\)$|BANK FEE|SERVICE FEE|#INT PYMT FEE|ITEM (UN)?PAID NO FUNDS|MONTHLY ACCOUNT FEE'
+    category: "Bank fees & interest"
+
+  # ── spend ──────────────────────────────────────────────────────────────────
+  - id: food_delivery
+    pattern: 'UBER EATS|MR D FOOD'
+    category: "Food delivery"
+    note: "Must precede the transport rule."
+
+  - id: transport
+    pattern: '\bUBER\b|\bBOLT\b|PARKING'
+    category: "Transport/Vehicle"
+
+  - id: groceries
+    pattern: 'WOOLWORTHS|CHECKERS|PICK N PAY|PNP|SPAR'
+    category: "Groceries"
+
+  - id: fuel
+    pattern: 'ENGEN|SASOL|SHELL|CALTEX'
+    category: "Fuel"
+
+  - id: tolls
+    pattern: 'TOLL'
+    category: "Tolls"
+
+  - id: restaurants
+    pattern: 'NANDOS|KFC|STEERS|SPUR|CAFE|COFFEE|PIZZA'
+    category: "Restaurants"
+
+  - id: supplements
+    pattern: 'SUPPLEMENT|VITAMIN'
+    category: "Supplements"
+    note: "Generic words only; the owner's own store patterns are private."
+
+  - id: pharmacy
+    pattern: 'CLICKS|DISCHEM'
+    category: "Medical aid & health"
+
+  - id: digital_subs
+    pattern: 'NETFLIX|SPOTIFY|SHOWMAX|APPLE\.COM'
+    category: "Digital subscriptions"
+
+  - id: airtime
+    pattern: 'AIRTIME'
+    category: "Connectivity"
+
+  - id: retail
+    pattern: 'TAKEALOT|MR PRICE|CRAZY STORE'
+    category: "Retail / clothing"
+
+fallback: "Uncategorised"

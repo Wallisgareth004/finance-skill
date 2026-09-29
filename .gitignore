@@ -1,0 +1,28 @@
+# Real data never enters this repo: no exports, workbooks, ledgers, reports,
+# statements or machine settings. The publish gate also REFUSES a tree that
+# holds any of these, so this file is the second line of defence, not the first.
+*.csv
+*.xlsx
+*.xlsm
+*.pdf
+*.sqlite
+*.sqlite-*
+*.db
+ledger.sqlite
+reports/
+backtest/results/
+backtest/.sandbox/
+backtest/synth/out/
+backtest/replays.private.yaml
+rules.private.yaml
+*.private.yaml
+# machine settings and secrets
+.env
+.env.*
+*.env
+# caches (a .pyc embeds the absolute path of its source)
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.DS_Store
