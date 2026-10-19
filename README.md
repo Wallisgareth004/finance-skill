@@ -131,19 +131,19 @@ window cuts short shows its spend to date and nothing scaled up.
 ## Run it on synthetic data
 
 Tested on Python 3.14. Required: `openpyxl`, `pyyaml`. Optional: `pypdf` (the pending
-PDF), `matplotlib` (the dashboard). With [uv](https://docs.astral.sh/uv/):
+PDF), `matplotlib` (the dashboard). Versions are pinned in `requirements.txt` (and
+`requirements-dev.txt` for the tests). With [uv](https://docs.astral.sh/uv/):
 
 ```bash
 # the test suite
-uv run --with pytest --with openpyxl --with pyyaml --with pypdf --with matplotlib \
-  python -m pytest tests -q
+uv run --with-requirements requirements-dev.txt python -m pytest tests -q
 
 # the synthetic backtest: generates the twin, replays it, grades every oracle
-uv run --with openpyxl --with pyyaml --with pypdf \
+uv run --with-requirements requirements.txt \
   python backtest/run_backtest.py --config backtest/replays.synthetic.yaml
 
 # the pipeline on a folder of exports: a dry run unless you add --write
-uv run --with openpyxl --with pyyaml --with pypdf \
+uv run --with-requirements requirements.txt \
   python scripts/finance_pipeline/run.py --input path/to/exports --model path/to/model.xlsx
 echo "exit=$?"
 ```
@@ -193,7 +193,7 @@ report from rows with a separate, plain grouping, and exits non-zero on any mism
 
 ## Defects found and fixed
 
-The backtest was built after a dry run on real data printed a confident, wrong deficit.
+The backtest was built after a dry run printed a confident, wrong monthly total.
 Replaying real history then kept turning defects up. Every one has a failing test
 written first, from the data that exposed it.
 
@@ -201,7 +201,7 @@ written first, from the data that exposed it.
 |---|---|---|---|
 | D1 | Overlapping exports in one drop imported twice | Every row of the overlap counted as new twice | Merge the files of one account as a multiset union on `(date, description, amount, balance)` before comparing with the workbook |
 | D2 | The dry run judged coverage on the old workbook | A gap and "no income" that the incoming files filled | Gap register and analysis run on workbook ∪ incoming |
-| D3 | Credits netted against spend inside each category | One large unlabelled credit turned a deficit into a printed surplus | Capital, transfer and reversal labels; uncategorised credits quarantined, blocking above 5% |
+| D3 | Credits netted against spend inside each category | A large one-off credit, unlabelled, flipped the monthly total's sign | Capital, transfer and reversal labels; uncategorised credits quarantined, blocking above 5% |
 | D5 | Crypto buys counted as spend | They appeared under "Spend by category" | One flow line (bought / sold / net), neither spend nor income |
 | D6 | A savings export was classed as the cheque account | Its rows were queued for the cheque sheet | `savings` is its own kind: chain-checked, never written |
 | D7 | The writer hardcoded the date cell style | On any other workbook, dates read back as serial numbers | Styles resolved from `styles.xml`; refuse if there is no date format |

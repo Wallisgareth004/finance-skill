@@ -1,0 +1,6 @@
+# Runtime dependencies, pinned to the versions the test suite last passed on.
+# Required: openpyxl, pyyaml. Optional: pypdf (the pending PDF), matplotlib (the dashboard).
+openpyxl==3.1.5
+pyyaml==6.0.3
+pypdf==6.20.0
+matplotlib==3.11.2

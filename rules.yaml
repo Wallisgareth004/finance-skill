@@ -26,13 +26,13 @@ rules:
     pattern: 'ANNUITY PAYOUT'
     category: "Income — annuity"
     when_amount_gt: 0
-    note: "The only recurring income. Credits only."
+    note: "Recurring annuity payments. Credits only."
 
   - id: capital_inflow
     pattern: 'LUMP SUM|CAPITAL INFLOW'
     category: "Capital — one-off inflow"
     when_amount_gt: 0
-    note: "One-off capital. Not income, not a refund, never netted against spend."
+    note: "A one-off capital credit. Not income, not a refund, never netted against spend."
 
   - id: card_settlement
     pattern: '^CREDIT CARD PAYMENT$'
